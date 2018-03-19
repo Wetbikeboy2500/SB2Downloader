@@ -10,7 +10,7 @@ function download_project (id = 208512075) {
             let zip = new JSZip(), return_array = [];
 
             console.log(xhttp.responseText);
-            json = JSON.parse(xhttp.responseText);
+            let json = JSON.parse(xhttp.responseText);
             console.log(json);
             //I only need yo get the coustumes and sounds that is in the satge and in the sprite children
 
@@ -127,18 +127,21 @@ function load_resource (name) {
 
 function load_project_info (id) {
     return new Promise ((resolve, reject) => {
+        resolve("TempNameUntilThereIsALinkToGetProjectNameByOnlyId" + ".sb2");
+        /*
         let xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = () => {
             if (xhttp.readyState == 4 && xhttp.status == 200) {
-                let json = JSON.parse(xhttp.responseText);
-                resolve(json.title + ".sb2");
+                //let json = JSON.parse(xhttp.responseText);
+                //resolve(json.title + ".sb2");
+                
             }
         }
         xhttp.onerror = () => {
             resolve("Untitled.sb2");
         }
-        xhttp.open("GET", "https://scratch.mit.edu/api/v1/project/"+id+"/?format=json",true);
-        xhttp.send();
+        xhttp.open("GET", "https://scratch.mit.edu/projects/"+id, true);
+        xhttp.send();*/
     }); 
 }
 
