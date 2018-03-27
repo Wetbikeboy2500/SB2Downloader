@@ -46,13 +46,19 @@ function download_project (id = 208512075) {
             Promise.all(batch)
                 .then((assets) => {
                 assets.forEach((a) => {
-                    zip.file(costumes.indexOf(a.name) + a.name.slice(a.name.indexOf("."), a.name.length), a.file, {binary: true});
-                    console.log(costumes.indexOf(a.name) + a.name.slice(a.name.indexOf("."), a.name.length));
+                    if (a != null) {
+                        zip.file(costumes.indexOf(a.name) + a.name.slice(a.name.indexOf("."), a.name.length), a.file, {binary: true});
+                        console.log(costumes.indexOf(a.name) + a.name.slice(a.name.indexOf("."), a.name.length));
+                    }
+
                 });
                 status++;
                 if (status == 2) {
                     generateSB2(zip, json, id);
                 }
+            })
+                .catch((e) => {
+                console.warn(e);
             });
 
             batch = [];
@@ -62,13 +68,18 @@ function download_project (id = 208512075) {
             Promise.all(batch)
                 .then((assets) => {
                 assets.forEach((a) => {
-                    zip.file(sounds.indexOf(a.name) + a.name.slice(a.name.indexOf("."), a.name.length), a.file, {binary: true});
-                    console.log(sounds.indexOf(a.name) + a.name.slice(a.name.indexOf("."), a.name.length));
-                });
+                    if (a != null) {
+                        zip.file(sounds.indexOf(a.name) + a.name.slice(a.name.indexOf("."), a.name.length), a.file, {binary: true});
+                        console.log(sounds.indexOf(a.name) + a.name.slice(a.name.indexOf("."), a.name.length));
+                    }
+                });  
                 status++;
                 if (status == 2) {
                     generateSB2(zip, json, id);
                 }
+            })
+                .catch((e) => {
+                console.warn(e);
             });
         }
     }
@@ -114,7 +125,7 @@ function load_resource (name) {
     return new Promise ((resolve, reject) => {
         JSZipUtils.getBinaryContent("https://cdn.assets.scratch.mit.edu/internalapi/asset/"+name+"/get/", (err, data) => {
             if(err) {
-                reject(err);
+                resolve(null);
             } else {
                 resolve({
                     name: name,
@@ -134,7 +145,7 @@ function load_project_info (id) {
             if (xhttp.readyState == 4 && xhttp.status == 200) {
                 //let json = JSON.parse(xhttp.responseText);
                 //resolve(json.title + ".sb2");
-                
+
             }
         }
         xhttp.onerror = () => {
