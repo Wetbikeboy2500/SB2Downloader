@@ -3,4 +3,4 @@ The SB2Downloader is for downloading .sb2 files using javascript. This is my own
 
 Future Plans:
 - Adds a filler photo when resource is not found
-- Generating an offline player using Sulforous (Coming Soon)
+- Generating an offline player using Sulfurous player (Coming Soon)
