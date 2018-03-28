@@ -1,6 +1,8 @@
+//the sound id is not correct for the main json
+
 //https://scratch.mit.edu/internalapi/project/112151368/get/ url to het the project JSON
 let costumes = [], sounds = [], status = 0;
-function download_project (id = 208512075) {
+function download_project (id = 211651365, return_value = false) {
     costumes = [];
     sounds = [];
     status = 0;
@@ -13,7 +15,7 @@ function download_project (id = 208512075) {
             let json = JSON.parse(xhttp.responseText);
             console.log(json);
             //I only need yo get the coustumes and sounds that is in the satge and in the sprite children
-
+            genenerate_sounds(json);
             //this is the order so the ids are correct for the svg and png images
             //pen layer
             costumes.push(json["penLayerMD5"]);
@@ -29,15 +31,10 @@ function download_project (id = 208512075) {
             json = return_array[1];
 
 
-            //sounds for sprites and stage
-            json["children"].forEach((a, i) => {
-                return_array = get_sounds(a, sounds);
-                sounds = return_array[0];
-                a = return_array[1];
-            });
-            return_array = get_sounds(json, sounds);
-            sounds = return_array[0];
-            json = return_array[1];
+            //updated way to deal with sounds that are in the json
+            return_array = genenerate_sounds(json);
+            json = return_array[0];
+            sounds = return_array[1];
 
             let batch = [];
             costumes.forEach((a) => {
@@ -54,7 +51,7 @@ function download_project (id = 208512075) {
                 });
                 status++;
                 if (status == 2) {
-                    generateSB2(zip, json, id);
+                    generateSB2(zip, json, id, return_value);
                 }
             })
                 .catch((e) => {
@@ -75,7 +72,7 @@ function download_project (id = 208512075) {
                 });  
                 status++;
                 if (status == 2) {
-                    generateSB2(zip, json, id);
+                    generateSB2(zip, json, id, return_value);
                 }
             })
                 .catch((e) => {
@@ -102,23 +99,6 @@ function get_costumes (json, array) {
         });
     }
     return [total_sprites, json];
-}
-
-function get_sounds (json, array) {
-    let total_sounds = array;
-    if (json.hasOwnProperty("sounds")) {
-        //go through each layer a sprite has and get the id and layer
-        json["sounds"].forEach((a, i) => {
-            if (total_sounds.includes(a["md5"]) == false) {
-                total_sounds.push(a["md5"]);
-            }
-        });
-
-        json["sounds"].forEach((a, i) => {
-            json["soundID"] = total_sounds.indexOf(a["md5"]);
-        });
-    }
-    return [total_sounds, json];
 }
 
 function load_resource (name) {
@@ -156,7 +136,34 @@ function load_project_info (id) {
     }); 
 }
 
-function generateSB2 (zip, json, id) {
+function genenerate_sounds (json) { //take in pure json
+    let sound_list = [];
+    json["children"].forEach((a, i) => { //then going to go through each child element
+        if (a.hasOwnProperty("sounds")) {
+            a["sounds"].forEach((a1, i1) => { //go through sounds of each child element
+                if (sound_list.indexOf(a1["md5"]) == -1) {
+                    sound_list.push(a1["md5"]);
+                }
+                //set the id of that element
+                json["children"][i]["sounds"][i1]["soundID"] = sound_list.indexOf(a1["md5"]);
+            });
+        }
+    });
+    //then going to go through the sounds of the stage
+    if (json.hasOwnProperty("sounds")) {
+        json["sounds"].forEach((a, i) => {
+            if (sound_list.indexOf(a["md5"]) == -1) {
+                sound_list.push(a["md5"]);
+            }
+            //set the id of that element
+            console.log(sound_list.indexOf(a["md5"]));
+            json["sounds"][i]["soundID"] = sound_list.indexOf(a["md5"]);
+        });
+    }
+    return [json, sound_list];
+}
+
+function generateSB2 (zip, json, id, return_value) {
     //turn json into a string
     zip.file("project.json", JSON.stringify(json));
 
@@ -165,7 +172,11 @@ function generateSB2 (zip, json, id) {
 
     load_project_info(id)
         .then((a) => {
-        save(sb2, a);
+        if (return_value == false) {
+            save(sb2, a);
+        } else {
+            _generate_offline(sb2);
+        }
     });
 }
 
@@ -178,4 +189,84 @@ function save (file, name) {
         document.body.removeChild(a);
     });
     a.click();
+}
+
+function generate_offline (id) {
+    download_project(id, true);
+}
+
+function _generate_offline (sb2) {
+    let zip = new JSZip();
+    var reader = new FileReader();
+    reader.readAsBinaryString(sb2);
+    zip.file("project.sb2", reader.result, {binary: true});
+
+    let filestoload = [
+        {
+            url: "/player.css",
+            name: "player.css"
+        }, 
+        {
+            url: "/embed.css",
+            name: "embed.css"
+        },
+        {
+            url: "/fonts.js",
+            name: "fonts.js"
+        },
+        {
+            url: "/phosphorus.js",
+            name: "phosphorus.js"
+        },
+        {
+            url: "/player.js",
+            name: "player.js"
+        },
+        {
+            url: "/embeded.html",
+            name: "embeded.html"
+        },
+        {
+            url: "/icons.svg",
+            name: "icons.svg"
+        }
+    ];
+    let batch = [];
+    filestoload.forEach((a) => {
+        batch.push(load_files(a));
+    });
+    
+    let status = 0;
+    Promise.all(batch)
+        .then((a) => {
+        zip.file(a[1], a[0]);
+        console.log("loaded");
+        status ++;
+        console.log(status);
+        if (status == filestoload.length) {
+            console.log(zip);
+            let final = zip.generate({type:"blob"});
+            save(final, "project");
+        }
+    });
+}
+
+function load_files (file) {
+    new Promise((resolve, reject) => {
+        let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = () => {
+            if (xhttp.status == 200 && xhttp.readyState == 4) {
+                resolve([xhttp.response, file.name]);
+            }
+        };
+        xhttp.onabort = () => {
+            reject("abort");
+        };
+        xhttp.onerror = (e) => {
+            reject(e);
+        };
+        xhttp.open("GET", file.url, true);
+        xhttp.responseType = "blob";
+        xhttp.send();
+    });
 }

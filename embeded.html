@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset='utf-8'>
+        <meta name='viewport' content='width=device-width', initial-scale='1.0'>
+        <title>phosphorus</title>
+        <link rel='stylesheet' href='player.css'>
+        <link rel='stylesheet' href='embed.css'>
+        <style>
+            html {
+                overflow: hidden;
+                background-color: #fff;
+            }
+            body {
+                margin: 0 auto 0 auto;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class='controls'>
+            <div class='progress-bar'></div>
+            <span class='stop'></span>
+            <span class='pause'></span>
+            <span class='flag' title="Shift+click to enable turbo mode."></span>
+            <div class='turbo'>Turbo Mode</div>
+            <span class='full-screen'></span>
+        </div>
+        <div class='player'></div>
+        <div class='internal-error'>
+            An internal error occurred. <a id='error-bug-link' target='_blank 'href='https://github.com/nathan/phosphorus/issues/new'>Click here</a> to file a bug report.
+        </div>
+        <script src='phosphorus.js'></script>
+        <script src='player.js'></script>
+        <script src="fonts.js"></script>
+        <script>
+            (function() {
+                'use strict';
+                let project = "";
+
+                var autoStart = false;
+                var lightContent = false;
+                var hasUI = true;
+                var resolutionX = Math.floor((window.innerHeight - 32) * (4/3));
+                var resolutionY = Math.floor(window.innerHeight - 32);
+                //499x413 503.09701492473005x417
+
+                P.resolution = resolutionX;
+                P.player.setResolution(resolutionX, resolutionY);
+                document.body.style.width = resolutionX + 'px';
+
+                if (lightContent) document.body.className += ' light-content';
+                document.body.className += hasUI ? ' has-ui' : ' hide-ui';
+                document.title = 'phosphorus';
+                
+                let xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = () => {
+                    if (xhttp.status == 200 && xhttp.readyState == 4) {
+                        load(xhttp.response);
+                    }
+                };
+                xhttp.open("GET", "a.sb2", true);
+                xhttp.responseType = "blob";
+                xhttp.send();
+                
+
+                function load (sb2) {
+                    console.log(sb2);
+                    //const request = P.IO.loadSB2Project(zip)
+                    var request = P.IO.loadSB2File(sb2);
+                    if (request) {
+                        P.player.showProgress(request, function(stage) {
+                            if (autoStart || !hasUI) stage.triggerGreenFlag();
+                        });
+                    }
+                }
+            }());
+
+            //resizing has issues with cutting off parts of the screen
+            window.onresize = () => {
+                let width = Math.floor((window.innerHeight - 32) * (4/3));
+                P.resolution = width;
+                P.player.setResolution(width, Math.floor(window.innerHeight - 32));
+                document.body.style.width = width + 'px';
+            };
+
+        </script>
+    </body>
+</html>
