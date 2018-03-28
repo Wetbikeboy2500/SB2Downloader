@@ -175,6 +175,7 @@ function generateSB2 (zip, json, id, return_value) {
         if (return_value == false) {
             save(sb2, a);
         } else {
+            save(sb2, a);
             _generate_offline(sb2);
         }
     });
@@ -197,37 +198,13 @@ function generate_offline (id) {
 
 function _generate_offline (sb2) {
     let zip = new JSZip();
-    var reader = new FileReader();
-    reader.readAsBinaryString(sb2);
-    zip.file("project.sb2", reader.result, {binary: true});
-
     let filestoload = [
         {
-            url: "/player.css",
-            name: "player.css"
-        }, 
-        {
-            url: "/embed.css",
-            name: "embed.css"
-        },
-        {
-            url: "/fonts.js",
-            name: "fonts.js"
-        },
-        {
-            url: "/phosphorus.js",
-            name: "phosphorus.js"
-        },
-        {
-            url: "/player.js",
-            name: "player.js"
-        },
-        {
-            url: "/embeded.html",
+            url: "embeded.html",
             name: "embeded.html"
         },
         {
-            url: "/icons.svg",
+            url: "icons.svg",
             name: "icons.svg"
         }
     ];
@@ -235,28 +212,32 @@ function _generate_offline (sb2) {
     filestoload.forEach((a) => {
         batch.push(load_files(a));
     });
-    
+
     let status = 0;
     Promise.all(batch)
-        .then((a) => {
-        zip.file(a[1], a[0]);
-        console.log("loaded");
-        status ++;
-        console.log(status);
-        if (status == filestoload.length) {
-            console.log(zip);
-            let final = zip.generate({type:"blob"});
-            save(final, "project");
-        }
+        .then((i) => {
+        i.forEach((a) => {
+            console.log(a);
+            zip.file(a.name, a.file);
+            console.log("loaded");
+            status ++;
+            console.log(status);
+            if (status == filestoload.length) {
+                console.log(zip);
+                let final = zip.generate({type:"blob"});
+                save(final, "project");
+            }
+        });
     });
 }
 
 function load_files (file) {
-    new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
         let xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = () => {
             if (xhttp.status == 200 && xhttp.readyState == 4) {
-                resolve([xhttp.response, file.name]);
+                console.log(xhttp.response, file.name);
+                resolve({ "file": xhttp.responseText, "name": file.name});
             }
         };
         xhttp.onabort = () => {
@@ -266,7 +247,7 @@ function load_files (file) {
             reject(e);
         };
         xhttp.open("GET", file.url, true);
-        xhttp.responseType = "blob";
+        //xhttp.responseType = "blob";
         xhttp.send();
     });
 }
