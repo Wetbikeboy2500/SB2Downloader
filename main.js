@@ -118,21 +118,19 @@ function load_resource (name) {
 
 function load_project_info (id) {
     return new Promise ((resolve, reject) => {
-        resolve("TempNameUntilThereIsALinkToGetProjectNameByOnlyId" + ".sb2");
-        /*
         let xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = () => {
             if (xhttp.readyState == 4 && xhttp.status == 200) {
-                //let json = JSON.parse(xhttp.responseText);
-                //resolve(json.title + ".sb2");
+                let json = JSON.parse(xhttp.responseText);
+                resolve(json.title + ".sb2");
 
             }
         }
         xhttp.onerror = () => {
             resolve("Untitled.sb2");
         }
-        xhttp.open("GET", "https://scratch.mit.edu/projects/"+id, true);
-        xhttp.send();*/
+        xhttp.open("GET", "https://api.scratch.mit.edu/projects/"+id, true);
+        xhttp.send();
     }); 
 }
 
@@ -192,62 +190,4 @@ function save (file, name) {
     a.click();
 }
 
-function generate_offline (id) {
-    download_project(id, true);
-}
 
-function _generate_offline (sb2) {
-    let zip = new JSZip();
-    let filestoload = [
-        {
-            url: "embeded.html",
-            name: "embeded.html"
-        },
-        {
-            url: "icons.svg",
-            name: "icons.svg"
-        }
-    ];
-    let batch = [];
-    filestoload.forEach((a) => {
-        batch.push(load_files(a));
-    });
-
-    let status = 0;
-    Promise.all(batch)
-        .then((i) => {
-        i.forEach((a) => {
-            console.log(a);
-            zip.file(a.name, a.file);
-            console.log("loaded");
-            status ++;
-            console.log(status);
-            if (status == filestoload.length) {
-                console.log(zip);
-                let final = zip.generate({type:"blob"});
-                save(final, "project");
-            }
-        });
-    });
-}
-
-function load_files (file) {
-    return new Promise((resolve, reject) => {
-        let xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = () => {
-            if (xhttp.status == 200 && xhttp.readyState == 4) {
-                console.log(xhttp.response, file.name);
-                resolve({ "file": xhttp.responseText, "name": file.name});
-            }
-        };
-        xhttp.onabort = () => {
-            reject("abort");
-        };
-        xhttp.onerror = (e) => {
-            reject(e);
-        };
-        xhttp.open("GET", file.url, true);
-        //xhttp.responseType = "blob";
-        xhttp.send();
-    });
-}

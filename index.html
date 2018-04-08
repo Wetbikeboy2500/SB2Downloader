@@ -3,13 +3,16 @@
         <title>SB2 Downloader</title>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js" type="application/javascript"></script>
         <script src="https://cdn.rawgit.com/Stuk/jszip-utils/dfdd631c4249bc495d0c335727ee547702812aa5/dist/jszip-utils.min.js" type="application/javascript"></script>
+        <script src="jsastext.js" type="application/javascript"></script>
         <script src="main.js" type="application/javascript"></script>
+        <script src="embeder.js" type="application/javascript"></script>
     </head>
     <body>
         <h1>SB2Downloader</h1>
-        <p>Enter the project ID below.</p>
-        <input type="number" id="id_input" />
+        <p>Enter the project ID below. The project maqy also take a long time to generate based on how fast your internet is and how big the project is.</p>
+        <input type="text" id="id_input" />
         <button onclick="download_project(document.getElementById('id_input').value)">Download</button>
-        <button onclick="generate_offline(document.getElementById('id_input').value)">Generate Offline Player</button>
+        <button onclick="_generate_offline(document.getElementById('id_input').value)">Generate Offline Player</button>
+        <p id="output"></p>
     </body>
 </html>
