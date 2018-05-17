@@ -5,13 +5,19 @@ function generate_offline (id) {
 function _generate_offline (sb2) {
     let zip = new JSZip();
 
-    let res = zip.folder("res");
+    /*let res = zip.folder("res");
 
     res.file("player.js", get_file(0));
     res.file("phosphorus.js", get_file(1));
 
     let final = zip.generate({type:"blob"});
-    save(final, "project");
+    save(final, "project");*/
+    
+    //new way of going this
+    
+    //we are going to load the resouces from the github page and compile them into one html file
+    let res = zip.folder("res");
+    let batch = [load_files({url: , })];
     /*let filestoload = [
         {
             url: "embeded.html",

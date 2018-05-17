@@ -1,4 +1,4 @@
-//the sound id is not correct for the main json
+M.AutoInit();
 
 //https://scratch.mit.edu/internalapi/project/112151368/get/ url to het the project JSON
 let costumes = [], sounds = [], status = 0;

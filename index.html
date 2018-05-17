@@ -1,18 +1,34 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
-        <title>SB2 Downloader</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title> SB2 Downloader </title>
+        <link href="css/materialize.min.css" rel="stylesheet" />
+    </head>
+
+    <body>
+        <div class="container">
+            <h1>SB2Downloader</h1>
+            <p>Enter the project ID below. The project may take awhile to process based off of internet speed and project size.</p>
+            <div class="row">
+                <div class="input-field col s12">
+                    <input type="text" id="id_input" class="validate" />
+                    <label for="id_input">Project ID</label>
+                </div>
+            </div>
+            <a class="waves-effect waves-light btn" onclick="download_project(document.getElementById('id_input').value)" >Download</a>
+            <a class="waves-effect waves-light btn" onclick="_generate_offline(document.getElementById('id_input').value)" disabled>Generate Offline</a>
+            <p id="output"></p>
+        </div>
+
+        <script src="js/jquery.min.js" type="application/javascript"></script>
+        <script src="js/materialize.min.js" type="application/javascript"></script>
+
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js" type="application/javascript"></script>
         <script src="https://cdn.rawgit.com/Stuk/jszip-utils/dfdd631c4249bc495d0c335727ee547702812aa5/dist/jszip-utils.min.js" type="application/javascript"></script>
-        <script src="jsastext.js" type="application/javascript"></script>
-        <script src="main.js" type="application/javascript"></script>
-        <script src="embeder.js" type="application/javascript"></script>
-    </head>
-    <body>
-        <h1>SB2Downloader</h1>
-        <p>Enter the project ID below. The project maqy also take a long time to generate based on how fast your internet is and how big the project is.</p>
-        <input type="text" id="id_input" />
-        <button onclick="download_project(document.getElementById('id_input').value)">Download</button>
-        <button onclick="_generate_offline(document.getElementById('id_input').value)">Generate Offline Player</button>
-        <p id="output"></p>
+        <script src="js/main.js" type="application/javascript"></script>
+        <script src="js/embeder.js" type="application/javascript"></script>
     </body>
 </html>
